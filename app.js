@@ -52,7 +52,15 @@ async function run() {
         _id: new ObjectId(req.params.id),
       });
       res.send(result);
-    });
+    } );
+    // update blog route added 
+      app.get("/updateblog/:id", async (req, res) => {
+        console.log(req.params.id);
+        const result = await blogCollection.findOne({
+          _id: new ObjectId(req.params.id),
+        });
+        res.send(result);
+      });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
