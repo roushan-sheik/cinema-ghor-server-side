@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 require("dotenv").config();
 const express = require("express");
@@ -7,11 +7,14 @@ const app = express();
 //middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+      "http://localhost:5173",
+      "https://blog-management-app-bc38c.web.app/",
+    ],
     credentials: true,
   })
 );
-app.use(express.json());
+app.use( express.json() );
 // response
 app.get("/", (req, res) => {
   res.send("Hello doctor");
@@ -36,9 +39,9 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
-    const doctorServices = client.db("carDoctor").collection("services");
+    const blogCollection = client.db("blogWebDB").collection("blogPosts");
     // get all blogs
     app.get("/blogposts", async (req, res) => {
       const cursor = blogCollection.find();
@@ -52,31 +55,31 @@ async function run() {
         _id: new ObjectId(req.params.id),
       });
       res.send(result);
-    } );
-    // update blog route added 
-      app.get("/updateblog/:id", async (req, res) => {
-        console.log(req.params.id);
-        const result = await blogCollection.findOne({
-          _id: new ObjectId(req.params.id),
-        });
-        res.send(result);
-      } );
-    // get my blogs 
-        app.get("/myblog/:email", async (req, res) => {
-          console.log(req.params.email);
-          const result = await blogCollection
-            .find({ email: req.params.email })
-            .toArray();
-          res.send(result);
-        } );
-    // blog post route 
-        app.post("/blogposts", async (req, res) => {
-          const newItem = req.body;
-          console.log(newItem);
-          const result = await blogCollection.insertOne(newItem);
-          res.send(result);
-        } );
-    // delete blog post 
+    });
+    // update blog route added
+    app.get("/updateblog/:id", async (req, res) => {
+      console.log(req.params.id);
+      const result = await blogCollection.findOne({
+        _id: new ObjectId(req.params.id),
+      });
+      res.send(result);
+    });
+    // get my blogs
+    app.get("/myblog/:email", async (req, res) => {
+      console.log(req.params.email);
+      const result = await blogCollection
+        .find({ email: req.params.email })
+        .toArray();
+      res.send(result);
+    });
+    // create blog route
+    app.post("/blogposts", async (req, res) => {
+      const newItem = req.body;
+      console.log(newItem);
+      const result = await blogCollection.insertOne(newItem);
+      res.send(result);
+    });
+    // delete blog post
     app.delete("/delete/:id", async (req, res) => {
       const result = await blogCollection.deleteOne({
         _id: new ObjectId(req.params.id),
@@ -84,7 +87,7 @@ async function run() {
       console.log(result);
       res.send(result);
     });
-    // update blog route 
+    // update blog route
     app.put("/updateChanges/:id", async (req, res) => {
       console.log(req.params.id);
       const query = { _id: new ObjectId(req.params.id) };
@@ -100,7 +103,7 @@ async function run() {
       };
       const result = await blogCollection.updateOne(query, data, options);
       res.send(result);
-    } );
+    });
     // filter blogs
     app.get("/filter-blog", async (req, res) => {
       const filter = req.query.filter;
