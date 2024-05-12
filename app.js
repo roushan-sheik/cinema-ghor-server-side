@@ -39,12 +39,20 @@ async function run() {
     await client.connect();
 
     const doctorServices = client.db("carDoctor").collection("services");
-// get all blogs 
-   app.get("/blogposts", async (req, res) => {
-     const cursor = blogCollection.find();
-     const result = await cursor.toArray();
-     res.send(result);
-   });
+    // get all blogs
+    app.get("/blogposts", async (req, res) => {
+      const cursor = blogCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // get single blog
+    app.get("/blogdetails/:id", async (req, res) => {
+      console.log(req.params.id);
+      const result = await blogCollection.findOne({
+        _id: new ObjectId(req.params.id),
+      });
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
