@@ -75,7 +75,15 @@ async function run() {
           console.log(newItem);
           const result = await blogCollection.insertOne(newItem);
           res.send(result);
-        });
+        } );
+    // delete blog post 
+    app.delete("/delete/:id", async (req, res) => {
+      const result = await blogCollection.deleteOne({
+        _id: new ObjectId(req.params.id),
+      });
+      console.log(result);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
