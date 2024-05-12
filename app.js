@@ -16,6 +16,10 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hello doctor");
 });
+// health
+app.get("/health", (req, res) => {
+  res.status(200).send("Helth is Good");
+});
 // Database connection
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.08atmtx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
