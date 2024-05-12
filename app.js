@@ -84,7 +84,23 @@ async function run() {
       console.log(result);
       res.send(result);
     });
-
+    // update blog route 
+    app.put("/updateChanges/:id", async (req, res) => {
+      console.log(req.params.id);
+      const query = { _id: new ObjectId(req.params.id) };
+      const options = { upsert: true };
+      const data = {
+        $set: {
+          title: req.body.title,
+          image_url: req.body.image_url,
+          category: req.body.category,
+          short_description: req.body.short_description,
+          long_description: req.body.long_description,
+        },
+      };
+      const result = await blogCollection.updateOne(query, data, options);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
