@@ -100,7 +100,19 @@ async function run() {
       };
       const result = await blogCollection.updateOne(query, data, options);
       res.send(result);
+    } );
+    // filter blogs
+    app.get("/filter-blog", async (req, res) => {
+      const filter = req.query.filter;
+      const search = req.query.search;
+      let query = {
+        title: { $regex: search, $options: "i" },
+      };
+      if (filter) query.category = filter;
+      const result = await blogCollection.find(query).toArray();
+      res.send(result);
     });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
