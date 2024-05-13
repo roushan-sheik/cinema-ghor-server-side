@@ -56,6 +56,15 @@ async function run() {
       // Send the inserted comment as response
       res.status(201).send(result);
     });
+    // get user wishlist
+    app.get("/wishlist/:user_email", async (req, res) => {
+      console.log(req.params.id);
+      const result = await wishlistCollection.find({
+        user_email: req.params.user_email,
+      });
+      const data = await result.toArray();
+      res.send(data);
+    });
     // delete blog from wishlist
     app.delete("/wishlist/delete/:id", async (req, res) => {
       const result = await wishlistCollection.deleteOne({
@@ -64,7 +73,7 @@ async function run() {
       console.log(result);
       res.send(result);
     });
-    // ====
+
     // ==========================> Comment route implementation <=============================
     const commentCollection = client.db("blogWebDB").collection("comments");
     // get all comments
