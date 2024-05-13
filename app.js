@@ -40,12 +40,48 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
+    // ==========================> Wishlist  route implementation <=============================
+    const wishlistCollection = client.db("blogWebDB").collection("wishlist");
+    // get all wishlist
+    app.get("/wishlist", async (req, res) => {
+      const cursor = wishlistCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
     // ==========================> Comment route implementation <=============================
     const commentCollection = client.db("blogWebDB").collection("comments");
     // get all comments
     app.get("/comments", async (req, res) => {
       const cursor = commentCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+    // create comment
+    app.post("/comments", async (req, res) => {
+      const newItem = req.body;
+      console.log(newItem);
+      const result = await commentCollection.insertOne(newItem);
+      // Fetch the newly inserted comment
+      const insertedComment = result.ops[0];
+      // Send the inserted comment as response
+      res.status(201).send(insertedComment);
+    });
+
+    // get blog comments
+    app.get("/comments/:id", async (req, res) => {
+      console.log(req.params.id);
+      const result = await commentCollection.find({
+        blog_id: req.params.id,
+      });
+      const data = await result.toArray();
+      res.send(data);
+    });
+    // delete comment
+    app.delete("/comment/delete/:id", async (req, res) => {
+      const result = await commentCollection.deleteOne({
+        _id: new ObjectId(req.params.id),
+      });
+      console.log(result);
       res.send(result);
     });
     // ==========================> Blog route implementation <=============================
@@ -76,11 +112,11 @@ async function run() {
     app.get("/myblog/:email", async (req, res) => {
       console.log(req.params.email);
       const result = await blogCollection
-        .find({ email: req.params.email })
+        .find({ user_email: req.params.email })
         .toArray();
       res.send(result);
     });
-    // create blog route
+    // create blog
     app.post("/blogposts", async (req, res) => {
       const newItem = req.body;
       console.log(newItem);
