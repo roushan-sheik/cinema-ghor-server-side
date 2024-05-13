@@ -56,6 +56,15 @@ async function run() {
       // Send the inserted comment as response
       res.status(201).send(result);
     });
+    // delete blog from wishlist
+    app.delete("/wishlist/delete/:id", async (req, res) => {
+      const result = await wishlistCollection.deleteOne({
+        _id: new ObjectId(req.params.id),
+      });
+      console.log(result);
+      res.send(result);
+    });
+    // ====
     // ==========================> Comment route implementation <=============================
     const commentCollection = client.db("blogWebDB").collection("comments");
     // get all comments
