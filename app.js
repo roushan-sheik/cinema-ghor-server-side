@@ -9,12 +9,12 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://blog-management-app-bc38c.web.app/",
+      "https://blog-management-app-bc38c.web.app",
     ],
     credentials: true,
   })
 );
-app.use( express.json() );
+app.use(express.json());
 // response
 app.get("/", (req, res) => {
   res.send("Hello doctor");
@@ -40,7 +40,15 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
-
+    // ==========================> Comment route implementation <=============================
+    const commentCollection = client.db("blogWebDB").collection("comments");
+    // get all comments
+    app.get("/comments", async (req, res) => {
+      const cursor = commentCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // ==========================> Blog route implementation <=============================
     const blogCollection = client.db("blogWebDB").collection("blogPosts");
     // get all blogs
     app.get("/blogposts", async (req, res) => {
