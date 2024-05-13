@@ -42,11 +42,19 @@ async function run() {
     // await client.connect();
     // ==========================> Wishlist  route implementation <=============================
     const wishlistCollection = client.db("blogWebDB").collection("wishlist");
-    // get all wishlist
+    // get all wishlist blog
     app.get("/wishlist", async (req, res) => {
       const cursor = wishlistCollection.find();
       const result = await cursor.toArray();
       res.send(result);
+    });
+    // add to wishlist
+    app.post("/wishlist", async (req, res) => {
+      const newItem = req.body;
+      console.log(newItem);
+      const result = await wishlistCollection.insertOne(newItem);
+      // Send the inserted comment as response
+      res.status(201).send(result);
     });
     // ==========================> Comment route implementation <=============================
     const commentCollection = client.db("blogWebDB").collection("comments");
@@ -61,10 +69,8 @@ async function run() {
       const newItem = req.body;
       console.log(newItem);
       const result = await commentCollection.insertOne(newItem);
-      // Fetch the newly inserted comment
-      const insertedComment = result.ops[0];
       // Send the inserted comment as response
-      res.status(201).send(insertedComment);
+      res.status(201).send(result);
     });
 
     // get blog comments
