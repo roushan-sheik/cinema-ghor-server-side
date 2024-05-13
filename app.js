@@ -51,7 +51,14 @@ async function run() {
     // add to wishlist
     app.post("/wishlist", async (req, res) => {
       const newItem = req.body;
-      console.log(newItem);
+      const reslt = await wishlistCollection.find({
+        blog_id: newItem.blog_id,
+      });
+      const data = await reslt.toArray();
+      if (data.length !== 0) {
+        res.status(422).send("Already exist");
+        return;
+      }
       const result = await wishlistCollection.insertOne(newItem);
       // Send the inserted comment as response
       res.status(201).send(result);
