@@ -122,7 +122,17 @@ async function run() {
       const cursor = blogCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-    });
+    } );
+
+// get featured data
+    app.get('/featuredblog', async (req, res) => {
+      const description = await blogCollection.find().toArray();
+      const sortedDesc = description.sort((a, b) => {
+        return b.long_description.split(" ").length - a.long_description.split(" ").length;
+      });
+      const topPost = sortedDesc.slice(0, 10);
+      res.json(topPost)
+    })
     // get single blog
     app.get("/blogdetails/:id", async (req, res) => {
       console.log(req.params.id);
