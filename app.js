@@ -122,17 +122,20 @@ async function run() {
       const cursor = blogCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-    } );
+    });
 
-// get featured data
-    app.get('/featuredblog', async (req, res) => {
+    // get featured data
+    app.get("/featuredblog", async (req, res) => {
       const description = await blogCollection.find().toArray();
       const sortedDesc = description.sort((a, b) => {
-        return b.long_description.split(" ").length - a.long_description.split(" ").length;
+        return (
+          b.long_description.split(" ").length -
+          a.long_description.split(" ").length
+        );
       });
       const topPost = sortedDesc.slice(0, 10);
-      res.json(topPost)
-    })
+      res.json(topPost);
+    });
     // get single blog
     app.get("/blogdetails/:id", async (req, res) => {
       console.log(req.params.id);
@@ -189,16 +192,24 @@ async function run() {
       const result = await blogCollection.updateOne(query, data, options);
       res.send(result);
     });
-    // filter blogs
-    app.get("/filter-blog", async (req, res) => {
-      const filter = req.query.filter;
-      const search = req.query.search;
-      let query = {
-        title: { $regex: search, $options: "i" },
-      };
-      if (filter) query.category = filter;
-      const result = await blogCollection.find(query).toArray();
-      res.send(result);
+    // filter blog by search input
+    app.get("/searchInput/:text", async (req, res) => {
+      const searchText = req.params.text;
+      const blogsData = await blogCollection.find().toArray();
+      const searchResult = blogsData.filter((blog) =>
+        blog.title.toString().match(searchText)
+      );
+      res.send(searchResult);
+    });
+    // filter blog by select option category
+    app.get("/category/:text", async (req, res) => {
+      const searchText = req.params.text;
+      const blogsData = await blogCollection.find().toArray();
+      const searchResult = blogsData.filter((blog) =>
+        blog.category.toString().match(searchText)
+      );
+      console.log(searchResult);
+      res.send(searchResult);
     });
 
     // Send a ping to confirm a successful connection
