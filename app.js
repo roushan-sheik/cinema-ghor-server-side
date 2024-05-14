@@ -2,6 +2,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 require("dotenv").config();
 const express = require("express");
+const jwt = require("jsonwebtoken");
+const cookeParser = require("cookie-parser");
 
 const app = express();
 //middleware
@@ -15,6 +17,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookeParser());
 // response
 app.get("/", (req, res) => {
   res.send("Hello doctor");
@@ -40,6 +43,19 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
+    // ==========================> Auth related  route implementation <=============================
+    app.post("/jwt", async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
+      res.send({ success: true });
+    });
     // ==========================> Wishlist  route implementation <=============================
     const wishlistCollection = client.db("blogWebDB").collection("wishlist");
     // get all wishlist blog
@@ -121,6 +137,8 @@ async function run() {
     app.get("/blogposts", async (req, res) => {
       const cursor = blogCollection.find();
       const result = await cursor.toArray();
+
+      console.log("tok tokkkkk", req.cookies.token);
       res.send(result);
     });
 
