@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const cookeParser = require("cookie-parser");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 //middleware
@@ -14,11 +14,27 @@ app.use(
       "https://blog-management-app-bc38c.web.app",
     ],
     credentials: true,
+    optionsSuccessStatus: 200,
   })
 );
 app.use(express.json());
-app.use(cookeParser());
-// response
+app.use(cookieParser());
+// verify token middleware
+const verifyToken = (req, res, next) => {
+  const token = req.cookies?.token;
+  if (!token) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+  if (token) {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (err) res.send(401).send({ message: "unauthorized access" });
+      req.user = decoded;
+      next();
+    });
+  }
+};
+
+// Home and health route
 app.get("/", (req, res) => {
   res.send("Hello doctor");
 });
@@ -44,15 +60,27 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // ==========================> Auth related  route implementation <=============================
+    // create token
     app.post("/jwt", async (req, res) => {
       const user = req.body;
+      console.log(user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
+        expiresIn: "10d",
       });
       res.cookie("token", token, {
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      });
+      res.send({ success: true });
+    });
+    // clear token when user will logout
+    app.get("/jwt/logout", (req, res) => {
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 0,
       });
       res.send({ success: true });
     });
