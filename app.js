@@ -22,6 +22,7 @@ app.use(cookieParser());
 // verify token middleware
 const verifyToken = (req, res, next) => {
   const token = req.cookies?.token;
+
   if (!token) {
     return res.status(401).send({ message: "unauthorized access" });
   }
@@ -108,7 +109,7 @@ async function run() {
       res.status(201).send(result);
     });
     // get user wishlist
-    app.get("/wishlist/:user_email", async (req, res) => {
+    app.get("/wishlist/:user_email",  async (req, res) => {
       console.log(req.params.id);
       const result = await wishlistCollection.find({
         user_email: req.params.user_email,
